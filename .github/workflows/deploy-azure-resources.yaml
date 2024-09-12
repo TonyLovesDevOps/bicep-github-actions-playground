@@ -10,7 +10,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    env:
+      ResourceGroupName: "bicep-github-actions-playground"
+      ResourceGroupLocation: "westus2"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -20,20 +22,17 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Install Bicep CLI
-      run: |
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+    - name: "Make sure resource group exists in Azure"
+      uses: Azure/CLI@v2
+      with:
+        inlineScript: |
+          #!/bin/bash
+          az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
+          echo "Azure resource group created"
 
-    - name: Create resource group
-      run: |
-        az group create \
-          --name ${{ env.AZURE_RESOURCE_GROUP_NAME }} \
-          --location ${{ env.AZURE_LOCATION }}
-
-    - name: Deploy Bicep file
-      run: |
-        bicep build main.bicep
-        az deployment sub create \
-          --name ${{ env.AZURE_RESOURCE_GROUP_NAME }} \
-          --location ${{ env.AZURE_LOCATION }} \
-          --template-file main.json
+    - name: Deploy the Bicep Script
+      uses: azure/arm-deploy@v2
+      with:
+        resourceGroupName: ${{ env.ResourceGroupName }}
+        resourceGroupLocation: ${{ env.ResourceGroupLocation }}
+        template: main.bicep
