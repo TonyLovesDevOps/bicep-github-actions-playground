@@ -35,3 +35,4 @@ resource webApplication'Microsoft.Web/sites@2023-12-01' = {
   }
 }
 
+output webAppUrl string = 'https://${webApplication.name}.azurewebsites.net'

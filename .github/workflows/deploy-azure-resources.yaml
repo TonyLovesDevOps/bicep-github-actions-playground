@@ -31,8 +31,12 @@ jobs:
           echo "Azure resource group created"
 
     - name: Deploy the Bicep Script
+      id: deploy
       uses: azure/arm-deploy@v2
       with:
         resourceGroupName: ${{ env.ResourceGroupName }}
         resourceGroupLocation: ${{ env.ResourceGroupLocation }}
         template: main.bicep
+
+    - name: Get the output of the deployment
+      run: echo "The deployment output is ${{ steps.deploy.outputs.webAppUrl }}"
