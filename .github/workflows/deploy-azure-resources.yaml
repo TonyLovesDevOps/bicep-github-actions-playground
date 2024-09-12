@@ -13,7 +13,6 @@ jobs:
     env:
       ResourceGroupName: "bicep-github-actions-playground"
       ResourceGroupLocation: "westus2"
-      bicepFile: "main.bicep"
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -31,19 +30,13 @@ jobs:
           az group create --name ${{ env.ResourceGroupName }} --location ${{ env.ResourceGroupLocation }}
           echo "Azure resource group created"
 
-    - name: Estimate costs of resources the bicep file will create
-      uses: TheCloudTheory/azure-cost-estimator-action@0.0.15-preview
-      with:
-        template-file: ${{ env.bicepFile }}
-        resource-group-name: ${{ env.ResourceGroupName }}
-
     - name: Deploy the Bicep Script
       id: deploy
       uses: azure/arm-deploy@v2
       with:
         resourceGroupName: ${{ env.ResourceGroupName }}
         resourceGroupLocation: ${{ env.ResourceGroupLocation }}
-        template: ${{ env.bicepFile }}
+        template: main.bicep
 
     - name: Get the output of the deployment
       run: echo "The deployment output is ${{ steps.deploy.outputs.webAppUrl }}"
